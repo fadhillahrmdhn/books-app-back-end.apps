@@ -40,17 +40,6 @@ const addNoteHandler = (request, h) => {
   const isNoName = name === undefined;
   const isPage = readPage > pageCount;
 
-  if (isSuccess && !isPage && !isNoName) {
-    const response = h.response({
-      status: 'success',
-      message: 'Buku berhasil ditambahkan',
-      data: {
-        bookId: id,
-      },
-    });
-    response.code(201);
-    return response;
-  }
   if (isNoName) {
     const response = h.response({
       status: 'fail',
@@ -65,6 +54,17 @@ const addNoteHandler = (request, h) => {
       message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
     });
     response.code(400);
+    return response;
+  }
+  if (isSuccess) {
+    const response = h.response({
+      status: 'success',
+      message: 'Buku berhasil ditambahkan',
+      data: {
+        bookId: id,
+      },
+    });
+    response.code(201);
     return response;
   }
   const response = h.response({
@@ -99,7 +99,7 @@ const getNoteByIdHandler = (request, h) => {
   }
   const response = h.response({
     status: 'fail',
-    message: 'Catatan tidak ditemukan',
+    message: 'Buku tidak ditemukan',
   });
   response.code(404);
   return response;
@@ -108,17 +108,50 @@ const getNoteByIdHandler = (request, h) => {
 const editNoteByIdHandler = (request, h) => {
   const { id } = request.params;
 
-  const { title, tags, body } = request.payload;
+  const {
+    name,
+    year,
+    author,
+    summary,
+    publisher,
+    pageCount,
+    readPage,
+    reading,
+  } = request.payload;
   const updatedAt = new Date().toISOString();
 
+  const isPage = readPage > pageCount;
+  const isNoName = name === undefined;
   const index = notes.findIndex((note) => note.id === id);
+
+  if (isNoName) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+    });
+    response.code(400);
+    return response;
+  }
+  if (isPage) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+    });
+    response.code(400);
+    return response;
+  }
 
   if (index !== -1) {
     notes[index] = {
       ...notes[index],
-      title,
-      tags,
-      body,
+      name,
+      year,
+      author,
+      summary,
+      publisher,
+      pageCount,
+      readPage,
+      reading,
       updatedAt,
     };
     const response = h.response({
@@ -145,7 +178,7 @@ const deleteNoteByIdHandler = (request, h) => {
     notes.splice(index, 1);
     const response = h.response({
       status: 'success',
-      message: 'Catatan berhasil dihapus',
+      message: 'Buku berhasil dihapus',
     });
     response.code(200);
     return response;
@@ -153,7 +186,7 @@ const deleteNoteByIdHandler = (request, h) => {
 
   const response = h.response({
     status: 'fail',
-    message: 'Catatan gagal dihapus. Id tidak ditemukan',
+    message: 'Buku gagal dihapus. Id tidak ditemukan',
   });
   response.code(404);
   return response;
