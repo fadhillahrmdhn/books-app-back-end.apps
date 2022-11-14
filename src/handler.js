@@ -34,7 +34,6 @@ const addBookHandler = (request, h) => {
     updatedAt,
   };
 
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
   const isNoName = name === undefined;
   const isPage = readPage > pageCount;
 
@@ -56,6 +55,7 @@ const addBookHandler = (request, h) => {
   }
 
   books.push(newBook);
+  const isSuccess = books.filter((book) => book.id === id).length > 0;
 
   if (isSuccess) {
     const response = h.response({
